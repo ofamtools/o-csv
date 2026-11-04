@@ -494,7 +494,7 @@ func (a *App) registerEditVerbs(verb func(func(ochazuke.Context, ochazuke.Argume
 				return nil, err
 			}
 			return done(a.Apply(Patch{Rows: []RowChange{{Index: i, Before: slices.Clone(a.Rows[i])}}}))
-		}), "Delete the row under the cursor (edit mode)").Confirm("Delete row {{id}}?").When(guardEditGrid).
+		}), "Delete the row under the cursor (edit mode)").Confirm("Delete row {{id}}?").Agent(ochazuke.AgentAllow).When(guardEditGrid).
 		Verb("insertBelow", verb(func(c ochazuke.Context, args ochazuke.Arguments) (any, error) {
 			i := a.grid.At(c).Row
 			if err := a.Apply(Patch{Rows: []RowChange{{Index: i + 1, After: make([]string, len(a.Header))}}}); err != nil {
@@ -560,7 +560,7 @@ func (a *App) registerEditVerbs(verb func(func(ochazuke.Context, ochazuke.Argume
 			}
 			before := a.column(j)
 			return done(a.Apply(Patch{Columns: []ColumnChange{{Index: j, Before: &before}}}))
-		}), "Delete the column under the cursor (edit mode)").Confirm("Delete column {{id}} ({{name}})?").When(guardEditGrid).
+		}), "Delete the column under the cursor (edit mode)").Confirm("Delete column {{id}} ({{name}})?").Agent(ochazuke.AgentAllow).When(guardEditGrid).
 		Verb("transform", verb(func(c ochazuke.Context, args ochazuke.Arguments) (any, error) {
 			j, err := colOf(c)
 			if err != nil {
