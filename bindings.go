@@ -35,7 +35,7 @@ func (a *App) bind() {
 			Bind("g g", line("top")).Bind("G", line("bottom"))
 	}
 	shape := func(s string) ochazuke.Binding {
-		return ochazuke.Do("mode.set", ochazuke.Arguments{"mode": s}).Guard(guardEditGrid)
+		return ochazuke.Do("mode.switch", ochazuke.Arguments{"mode": s}).Guard(guardEditGrid)
 	}
 	// Every noun that resolves to a cell set (cell, row, column, selection)
 	// has transform and the same t rows; the innermost on the stack answers.
@@ -83,7 +83,7 @@ func (a *App) bind() {
 	transforms(m, "selection")
 	m.Bind("o", ochazuke.Do("selection.swap")).
 		Bind("v", shape(grid.ShapeBlock)).Bind("V", shape(grid.ShapeRow)).Bind("ctrl+v", shape(grid.ShapeColumn)).
-		Bind("esc", ochazuke.Do("mode.set", ochazuke.Arguments{"mode": "normal"})).
+		Bind("esc", ochazuke.Do("mode.switch", ochazuke.Arguments{"mode": "normal"})).
 		Bind("y", ochazuke.Do("selection.yank")).
 		Bind("d", ochazuke.Do("selection.delete")).
 		Bind("p", ochazuke.Do("selection.paste")).

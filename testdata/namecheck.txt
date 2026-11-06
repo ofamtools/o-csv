@@ -10,7 +10,6 @@ edit.go	App.pastePatch	case	"line"	1
 filter.go	App.filterLine	compare	"filter"	1
 filter.go	App.registerFilter	compare	"filter"	1
 prompt.go	App.registerPrompt	compare	"field"	1
-sheet.go	ParseDelim	case	"tab"	1
 verbs.go	App.move	case	"half-down"	1
 verbs.go	App.move	case	"half-up"	1
 verbs.go	App.move	case	"page-down"	1
