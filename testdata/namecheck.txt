@@ -1,0 +1,23 @@
+# namecheck baseline: file, function, kind, literal, count, reason (tab separated).
+# A row with a reason is a legitimate use that stays. A row without one is debt that may only shrink:
+# NAMECHECK_UPDATE=1 removes rows and lowers counts, never adds them. Adding a row is a reviewed edit.
+app.go	App.setTable	compare	"grid"	1
+app.go	App.setTable	compare	"sheet"	1
+app.go	App.write	cyclo	"-"	30
+bindings.go	App.instanceRows	compare	"column"	1
+edit.go	App.pastePatch	case	"column"	1
+edit.go	App.pastePatch	case	"line"	1
+filter.go	App.filterLine	compare	"filter"	1
+filter.go	App.registerFilter	compare	"filter"	1
+prompt.go	App.registerPrompt	compare	"field"	1
+sheet.go	ParseDelim	case	"tab"	1
+verbs.go	App.move	case	"half-down"	1
+verbs.go	App.move	case	"half-up"	1
+verbs.go	App.move	case	"page-down"	1
+verbs.go	App.move	case	"page-up"	1
+verbs.go	App.move	compare	"left"	1
+verbs.go	App.move	compare	"row-end"	1
+verbs.go	App.registerEditVerbs	compare	"column"	1
+verbs.go	App.registerEditVerbs	compare	"line"	1
+verbs.go	App.registerEditVerbs	cyclo	"-"	40
+view.go	App.tableView	cyclo	"-"	47
