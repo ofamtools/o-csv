@@ -587,7 +587,7 @@ func (a *App) registerEditVerbs(verb func(func(ochazuke.Context, ochazuke.Argume
 			a.grid.Cancel()
 			return y, r.StoreYank(y, ochazuke.StringArg(args, "register", ""), false)
 		}), "Yank the selected cells with their shape").When(grid.GuardSelecting).
-		Verb("delete", verb(func(c ochazuke.Context, args ochazuke.Arguments) (any, error) {
+		Verb("cut", verb(func(c ochazuke.Context, args ochazuke.Arguments) (any, error) {
 			set := a.grid.Selected()
 			if len(set) == 0 {
 				return nil, errors.New("no selection")
@@ -617,12 +617,12 @@ func (a *App) registerEditVerbs(verb func(func(ochazuke.Context, ochazuke.Argume
 				return nil, err
 			}
 			return a.state(), r.StoreYank(y, ochazuke.StringArg(args, "register", ""), true)
-		}), "Delete the selection into the registers: rows and columns are removed, a block is emptied").When(grid.GuardSelecting).
+		}), "Cut the selection into the registers: rows and columns are removed, a block is emptied").When(grid.GuardSelecting).
 		Verb("paste", paste, "Paste the register over the selection's first cell by its shape").When(grid.GuardSelecting).
 		Verb("clear", clear, "Empty the selected cells").When(grid.GuardSelecting).
 		Verb("transform", transform, "Apply a named transformation to the selected cells").When(grid.GuardSelecting)
 	params("selection.yank", register)
-	params("selection.delete", register)
+	params("selection.cut", register)
 	params("selection.paste", register)
 	params("selection.transform", transformParams)
 
@@ -630,7 +630,7 @@ func (a *App) registerEditVerbs(verb func(func(ochazuke.Context, ochazuke.Argume
 		Verb("list", verb(func(ochazuke.Context, ochazuke.Arguments) (any, error) { return TransformationChoices(), nil }), "List the transformations transform accepts: ids with labels, the transform name's pick list").Fetch()
 	setHistory(r, ochazuke.HistoryChange, "sheet.save", "sheet.saveAs", "sheet.addColumn", "sheet.undo", "sheet.redo",
 		"cell.edit", "cell.clear", "cell.paste", "cell.transform", "row.delete", "row.insertBelow", "row.duplicate", "row.transform",
-		"column.rename", "column.delete", "column.transform", "selection.yank", "selection.delete", "selection.paste", "selection.clear", "selection.transform")
+		"column.rename", "column.delete", "column.transform", "selection.yank", "selection.cut", "selection.paste", "selection.clear", "selection.transform")
 	// The yank ends the selection, so its repeat has none to yank: the
 	// selecting guard keeps dot from running it ("nothing to repeat").
 	setRepeatable(r, "selection.yank")

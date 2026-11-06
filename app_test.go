@@ -920,3 +920,41 @@ func TestSortInsideASelection(t *testing.T) {
 		t.Fatalf("V j s: shape %q, first %q, sort %+v", a.grid.Shape(), a.Rows[0][0], a.Sort)
 	}
 }
+
+// The sheet's nouns are thing nouns over its state: get reads a row, a
+// column or a cell by its place, the selection's old delete is its cut (the old
+// name is a removed verb, not an alias), and d over a selection cuts.
+func TestSheetNounsAreThingNouns(t *testing.T) {
+	a := open(t, copyFile(t, cities), true)
+	get := func(noun, key string) ochazuke.Thing {
+		t.Helper()
+		v, err := a.r.Execute(ochazuke.Request{Noun: noun, Verb: "get", Args: ochazuke.Arguments{"id": key}})
+		if err != nil {
+			t.Fatalf("%s get %s: %v", noun, key, err)
+		}
+		th, ok := v.(map[string]any)
+		if !ok {
+			t.Fatalf("%s get %s answered %T", noun, key, v)
+		}
+		return ochazuke.Thing(th)
+	}
+	if th := get("row", "1"); th["id"] != "1" || th["cells"] == nil {
+		t.Fatalf("row 1 %v", th)
+	}
+	if th := get("column", "1"); th["label"] != a.Header[0] {
+		t.Fatalf("column 1 %v", th)
+	}
+	if th := get("cell", "1:1"); th["label"] != a.Rows[0][0] {
+		t.Fatalf("cell 1:1 %v", th)
+	}
+	if _, ok := a.r.Operation("selection.cut"); !ok {
+		t.Fatal("selection.cut is missing")
+	}
+	removed := false
+	for _, row := range a.r.RemovedVerbs() {
+		removed = removed || row.Noun == "ochazuke.selection" && row.Verb == "delete" && row.Replacement == "ochazuke.selection.cut"
+	}
+	if !removed {
+		t.Fatal("the removed list lacks the selection's old delete")
+	}
+}

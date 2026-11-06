@@ -226,6 +226,9 @@ func newSheet(opts Options, edit bool) (*App, error) {
 	g.MaxCellWidth = a.colCap
 	a.registerPrompt()
 	a.registerVerbs()
+	if err := a.defineStores(); err != nil {
+		return nil, err
+	}
 	if err := a.registerDetail(); err != nil {
 		return nil, err
 	}

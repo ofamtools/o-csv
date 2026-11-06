@@ -85,7 +85,7 @@ func (a *App) bind() {
 		Bind("v", shape(grid.ShapeBlock)).Bind("V", shape(grid.ShapeRow)).Bind("ctrl+v", shape(grid.ShapeColumn)).
 		Bind("esc", ochazuke.Do("mode.switch", ochazuke.Arguments{"mode": "normal"})).
 		Bind("y", ochazuke.Do("selection.yank")).
-		Bind("d", ochazuke.Do("selection.delete")).
+		Bind("d", ochazuke.Do("selection.cut")).
 		Bind("p", ochazuke.Do("selection.paste")).
 		Bind("c", ochazuke.Do("selection.clear")).
 		Bind("s", ochazuke.Do("column.sort")).
