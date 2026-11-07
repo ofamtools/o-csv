@@ -86,14 +86,14 @@ func runCmds(a *App, cmd tea.Cmd) {
 func at(t *testing.T, a *App, row, col int) {
 	t.Helper()
 	if got := a.grid.Cursor(); got != (grid.Ref{Row: row, Col: col}) {
-		t.Fatalf("cursor = %v, want r%d c%d (focus %s)", got, row, col, a.r.Focus)
+		t.Fatalf("cursor = %v, want r%d c%d (focus %s)", got, row, col, a.r.FocusID())
 	}
 }
 
 func TestNavigation(t *testing.T) {
 	a := open(t, cities, false)
-	if a.r.Focus != "r0:c0" {
-		t.Fatalf("start focus %s", a.r.Focus)
+	if a.r.FocusID() != "r0:c0" {
+		t.Fatalf("start focus %s", a.r.FocusID())
 	}
 	press(t, a, "j", "j", "l")
 	at(t, a, 2, 1)
@@ -124,7 +124,7 @@ func TestPromptSharedClose(t *testing.T) {
 	for _, close := range []string{"esc", "q", "modal.close", "field.cancel"} {
 		t.Run(close, func(t *testing.T) {
 			a := open(t, cities, true)
-			focus, mode := a.r.Focus, a.r.BaseMode()
+			focus, mode := a.r.FocusID(), a.r.BaseMode()
 			committed := false
 			if err := a.prompt("Question", "", "", func(string) error { committed = true; return nil }); err != nil {
 				t.Fatal(err)
@@ -150,8 +150,8 @@ func TestPromptSharedClose(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
-			if a.ask != nil || a.r.TopModal() != "" || committed || a.r.Focus != focus || a.r.BaseMode() != mode {
-				t.Fatalf("close: ask %v modal %q committed %v focus %q mode %q", a.ask, a.r.TopModal(), committed, a.r.Focus, a.r.BaseMode())
+			if a.ask != nil || a.r.TopModal() != "" || committed || a.r.FocusID() != focus || a.r.BaseMode() != mode {
+				t.Fatalf("close: ask %v modal %q committed %v focus %q mode %q", a.ask, a.r.TopModal(), committed, a.r.FocusID(), a.r.BaseMode())
 			}
 			if err := a.prompt("Again", "", "", func(string) error { committed = true; return nil }); err != nil {
 				t.Fatal(err)
@@ -297,13 +297,13 @@ func TestSortCyclesAscDescFileOrder(t *testing.T) {
 func TestFilterField(t *testing.T) {
 	a := open(t, cities, false)
 	press(t, a, "l", "f")
-	if a.r.Focus != filterID {
-		t.Fatalf("f focus %s", a.r.Focus)
+	if a.r.FocusID() != filterID {
+		t.Fatalf("f focus %s", a.r.FocusID())
 	}
 	Type(a.m, "peru")
 	press(t, a, "enter")
-	if a.grid.VisibleCount() != 2 || a.r.Focus == filterID {
-		t.Fatalf("filter: %d visible, focus %s", a.grid.VisibleCount(), a.r.Focus)
+	if a.grid.VisibleCount() != 2 || a.r.FocusID() == filterID {
+		t.Fatalf("filter: %d visible, focus %s", a.grid.VisibleCount(), a.r.FocusID())
 	}
 	if !strings.Contains(view(a), `row 1/2 (of 10) · col 2/7 country · filter country~"peru"`) {
 		t.Fatalf("status:\n%s", view(a))
@@ -317,8 +317,8 @@ func TestFilterField(t *testing.T) {
 func TestRowDetail(t *testing.T) {
 	a := open(t, cities, false)
 	press(t, a, "l", "l", "l", "l", "l", "l", "enter")
-	if a.r.TopModal() != "" || !a.ShowDetail || a.r.Focus != "r0:c6" {
-		t.Fatalf("enter: modal %q, detail %v, focus %s", a.r.TopModal(), a.ShowDetail, a.r.Focus)
+	if a.r.TopModal() != "" || !a.ShowDetail || a.r.FocusID() != "r0:c6" {
+		t.Fatalf("enter: modal %q, detail %v, focus %s", a.r.TopModal(), a.ShowDetail, a.r.FocusID())
 	}
 	v := view(a)
 	for _, want := range []string{"row 1 of 10", "population  13960000", "home to the Imperial Palace"} {
@@ -381,8 +381,8 @@ func TestRowDetailScrolls(t *testing.T) {
 		t.Fatalf("an overflowing detail shows no marker:\n%s", v)
 	}
 	press(t, a, "J")
-	if a.detail.Offset() != 1 || a.r.Focus != "r0:c0" {
-		t.Fatalf("J: offset %d focus %s", a.detail.Offset(), a.r.Focus)
+	if a.detail.Offset() != 1 || a.r.FocusID() != "r0:c0" {
+		t.Fatalf("J: offset %d focus %s", a.detail.Offset(), a.r.FocusID())
 	}
 	press(t, a, "K")
 	if a.detail.Offset() != 0 {
@@ -559,8 +559,8 @@ func TestLoadRunsOffTheLoop(t *testing.T) {
 	if err := ocli.Settle(a.r, nil); err != nil {
 		t.Fatal(err)
 	}
-	if len(a.Rows) != 10 || a.r.Focus != "r0:c0" {
-		t.Fatalf("after load: %d rows, focus %s", len(a.Rows), a.r.Focus)
+	if len(a.Rows) != 10 || a.r.FocusID() != "r0:c0" {
+		t.Fatalf("after load: %d rows, focus %s", len(a.Rows), a.r.FocusID())
 	}
 	if _, err := a.r.Execute(ochazuke.Request{Noun: "sheet", Verb: "load", Target: pageID, Args: ochazuke.Arguments{"path": "testdata/missing.csv"}}); err != nil {
 		t.Fatal(err)
@@ -826,8 +826,8 @@ func TestDotAfterASelectionYankFailsCleanly(t *testing.T) {
 func TestDotRepeatsTheLastChange(t *testing.T) {
 	a := open(t, cities, false)
 	press(t, a, "y", "tab")
-	if a.r.Focus != filterID {
-		t.Fatalf("tab: focus %s", a.r.Focus)
+	if a.r.FocusID() != filterID {
+		t.Fatalf("tab: focus %s", a.r.FocusID())
 	}
 	for _, q := range []ochazuke.Request{{Noun: "input", Verb: "insert", Args: ochazuke.Arguments{"text": "o"}}, {Noun: "history", Verb: "repeat"}} {
 		if _, err := a.r.Execute(q); err != nil {

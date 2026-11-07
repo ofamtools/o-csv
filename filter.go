@@ -39,7 +39,7 @@ func (a *App) registerFilter() error {
 			if err := a.filterBy(at.Col, query); err != nil {
 				return nil, err
 			}
-			if r.Focus == filterID {
+			if r.FocusID() == filterID {
 				return a.state(), a.grid.Focus()
 			}
 			return a.state(), nil
@@ -84,7 +84,7 @@ func (a *App) filterLine(width int) ochazuke.Block {
 	}
 	label = ansi.Truncate(strings.ReplaceAll(label, "\n", " "), max(1, width/2), "…")
 	room := max(1, width-ansi.StringWidth(label))
-	if a.r.Focus != filterID {
+	if a.r.FocusID() != filterID {
 		return ochazuke.Text(label + ochazuke.InputView(a.filterIn, room, 1))
 	}
 	field := ochazuke.InputBlock(a.filterIn, room, 1)

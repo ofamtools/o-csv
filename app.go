@@ -306,7 +306,7 @@ func (a *App) setTable(path string, t *Table) {
 	a.syncFilterField()
 	a.grid.SetFilter(nil)
 	a.grid.SetData(a.Header, a.Rows)
-	if a.r.Page == pageID && a.r.Focus == gridID {
+	if a.r.Page == pageID && a.r.FocusID() == gridID {
 		_ = a.grid.Focus()
 	}
 }

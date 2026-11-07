@@ -1,0 +1,12 @@
+{
+  "name": "the filter prompt opened and closed returns the focus and mode it left",
+  "file": "testdata/cities.csv",
+  "script": ["l", "f", "esc", "f", "tab", "j"],
+  "expect": [
+    {"after": 1, "focus": "r0:c1", "mode": "normal"},
+    {"after": 2, "focus": "filter", "mode": "insert"},
+    {"after": 3, "focus": "r0:c1", "mode": "normal"},
+    {"after": 4, "focus": "filter", "mode": "insert"},
+    {"after": 5, "focus": "r0:c1", "mode": "normal"}
+  ]
+}
