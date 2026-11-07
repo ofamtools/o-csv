@@ -236,9 +236,8 @@ func newSheet(opts Options, edit bool) (*App, error) {
 		return nil, err
 	}
 	a.bind()
-	picker := ochazuke.NewPicker(r)
-	a.m.ModalViews["picker"] = ochazuke.ModalView{Title: "Choose a path", Render: func(_ *ochazuke.Runtime, _ *ochazuke.Instance, w, h int) ochazuke.Block {
-		return picker.ViewBlock(w, h)
-	}}
+	if err := declarePickers(r); err != nil {
+		return nil, err
+	}
 	return a, nil
 }
