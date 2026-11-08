@@ -229,3 +229,16 @@ func TestSettingsReachTheCommandLine(t *testing.T) {
 		t.Fatalf("settings reference: %v\n%s", err, data)
 	}
 }
+
+func TestCatalogDeclaresSingularNamespace(t *testing.T) {
+	var doc ocli.CatalogDoc
+	if err := json.Unmarshal([]byte(string(cli(t, "catalog"))), &doc); err != nil {
+		t.Fatal(err)
+	}
+	if doc.Namespace != "csv" || ochazuke.DefaultNamespace != "csv" {
+		t.Fatalf("catalog namespace %q, default %q; want csv", doc.Namespace, ochazuke.DefaultNamespace)
+	}
+	if got, err := ocli.CatalogNamespace(doc, "o-csv"); err != nil || got != "csv" {
+		t.Fatal(got, err)
+	}
+}

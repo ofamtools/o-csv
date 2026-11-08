@@ -26,6 +26,16 @@ type Record struct {
 	Values []string
 }
 
+// Namespace is the singular namespace o-csv declares (lexicon plan): its
+// operations are csv.<noun>.<verb> and a host mounts its catalog under it.
+const Namespace = "csv"
+
+func init() {
+	if err := ochazuke.DeclareNamespace(Namespace); err != nil {
+		panic(err)
+	}
+}
+
 func (r Record) MarshalJSON() ([]byte, error) {
 	var b bytes.Buffer
 	b.WriteByte('{')
@@ -283,7 +293,7 @@ func newShell(stdin io.Reader, stdout, stderr io.Writer) *ocli.Shell {
 		"no_header": {Type: "boolean", Description: "the first line is data; columns are named A, B, C, ..."},
 	}
 	params := func(key string, extra map[string]ochazuke.Parameter) {
-		op := r.Operations[r.CanonicalKey(key)]
+		op := r.Operations.At(ochazuke.Key(r.CanonicalKey(key)))
 		op.Parameters = map[string]ochazuke.Parameter{}
 		for k, v := range file {
 			op.Parameters[k] = v
@@ -292,7 +302,7 @@ func newShell(stdin io.Reader, stdout, stderr io.Writer) *ocli.Shell {
 			op.Parameters[k] = v
 		}
 		op.Result = map[string]string{"table.show": "row[]", "table.columns": "column[]", "table.stats": "stats"}[key]
-		r.Operations[r.CanonicalKey(key)] = op
+		r.Operations.Set(op)
 	}
 	params("table.show", map[string]ochazuke.Parameter{
 		"columns": {Type: "string", Description: "comma-separated column names to keep, in that order"},

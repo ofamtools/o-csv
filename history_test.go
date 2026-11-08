@@ -22,7 +22,7 @@ func TestEveryVerbDeclaresItsHistory(t *testing.T) {
 			t.Fatal(err)
 		}
 		n := 0
-		for key, op := range a.r.Operations {
+		for key, op := range a.r.Operations.Entries() {
 			if op.Builtin {
 				continue
 			}
@@ -50,8 +50,8 @@ func TestEveryVerbDeclaresItsHistory(t *testing.T) {
 				continue
 			}
 			n++
-			if v.History == "" || ops[key].HistoryKind == "" || v.History != ops[key].HistoryKind {
-				t.Errorf("catalog verb %s: history %q, declared %q", key, v.History, ops[key].HistoryKind)
+			if v.History == "" || ops.At(ochazuke.Key(key)).HistoryKind == "" || v.History != ops.At(ochazuke.Key(key)).HistoryKind {
+				t.Errorf("catalog verb %s: history %q, declared %q", key, v.History, ops.At(ochazuke.Key(key)).HistoryKind)
 			}
 		}
 	}
@@ -72,7 +72,7 @@ func TestVerbHistoryKinds(t *testing.T) {
 	for key, want := range map[string]string{
 		"table.show": ochazuke.HistoryFetch, "table.columns": ochazuke.HistoryFetch, "table.stats": ochazuke.HistoryFetch,
 	} {
-		if got := ops[key].HistoryKind; got != want {
+		if got := ops.At(ochazuke.Key(key)).HistoryKind; got != want {
 			t.Errorf("%s: %q, want %q", key, got, want)
 		}
 	}
@@ -81,7 +81,7 @@ func TestVerbHistoryKinds(t *testing.T) {
 		"sheet.save": ochazuke.HistoryChange, "cell.edit": ochazuke.HistoryChange, "column.sort": ochazuke.HistoryChange, "cell.yank": ochazuke.HistoryChange,
 		"sheet.move": ochazuke.HistoryAction, "sheet.search": ochazuke.HistoryAction, "row.detail": ochazuke.HistoryAction,
 	} {
-		if got := a.r.Operations[a.r.CanonicalKey(key)].HistoryKind; got != want {
+		if got := a.r.Operations.At(ochazuke.Key(a.r.CanonicalKey(key))).HistoryKind; got != want {
 			t.Errorf("%s: %q, want %q", key, got, want)
 		}
 	}
