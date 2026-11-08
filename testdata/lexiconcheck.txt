@@ -1,0 +1,6 @@
+# lexiconcheck baseline: rule, subject (tab separated). One row per known violation.
+# A row may only be removed: LEXICONCHECK_UPDATE=1 drops the rows the registry no longer breaks.
+# Adding a row is a reviewed edit; LEXICONCHECK_UPDATE=seed writes a baseline that does not exist yet.
+# column, row: o-csv's nouns; ochazuke's own verbs ochazuke.collection.column and ochazuke.timeline.row use the words (fix upstream: collection goto, timeline goto).
+noun-action	column
+noun-action	row

@@ -46,12 +46,12 @@ func (a *App) bind() {
 	}
 
 	cell := r.Define("cell").Mode("normal").
-		Bind("|", ochazuke.Do("sheet.column").FromPayload("index", ochazuke.SourceCount)).
-		Bind("g c", ochazuke.Do("sheet.column")).
-		Bind("/", ochazuke.Do("sheet.search")).
+		Bind("|", ochazuke.Do("sheet.goto").FromPayload("index", ochazuke.SourceCount)).
+		Bind("g c", ochazuke.Do("sheet.goto")).
+		Bind("/", ochazuke.Do("sheet.find")).
 		Bind("n", ochazuke.Do("sheet.next")).
 		Bind("N", ochazuke.Do("sheet.previous")).
-		Bind("enter", ochazuke.Do("row.detail")).
+		Bind("enter", ochazuke.Do("row.show")).
 		Bind("y", ochazuke.Do("cell.yank")).
 		Bind("Y", ochazuke.Do("row.yank")).
 		// Edit mode.
@@ -65,7 +65,7 @@ func (a *App) bind() {
 
 	row := r.Define("row").Mode("normal").
 		Bind("d d", ochazuke.Do("row.delete")).
-		Bind("o", ochazuke.Do("row.insertBelow"))
+		Bind("o", ochazuke.Do("row.insert-below"))
 	transforms(row, "row")
 
 	column := r.Define("column").Mode("normal").
@@ -103,7 +103,7 @@ func (a *App) bind() {
 		Bind("ctrl+e", ochazuke.Do("sheet.edit")).
 		Bind("ctrl+o", ochazuke.Do("sheet.open")).
 		Bind("ctrl+s", ochazuke.Do("sheet.save")).
-		Bind("+", ochazuke.Do("sheet.addColumn")).
+		Bind("+", ochazuke.Do("sheet.add-column")).
 		Bind("u", ochazuke.Do("sheet.undo")).
 		Bind("ctrl+r", ochazuke.Do("sheet.redo"))
 }

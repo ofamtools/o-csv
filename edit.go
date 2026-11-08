@@ -9,7 +9,7 @@ import (
 	"ofam.dev/ochazuke/grid"
 )
 
-// Edit mode helpers, from ochazuke's examples/csv: named transformations
+// Edit mode helpers, from ochazuke's examples/csv: named transformation
 // and the shaped yanks and pastes of visual selections.
 
 // Transformations are data behind one verb. A text transformation sees the
@@ -72,7 +72,7 @@ var transformationLabels = map[string]string{
 	"fillDown": "fill down from the top selected cell",
 }
 
-// TransformationChoices is transformations.list: every name with a label,
+// TransformationChoices is transformation.list: every name with a label,
 // in TransformationNames order, the shape a parameter Source returns.
 func TransformationChoices() []ochazuke.Choice {
 	names := TransformationNames()
@@ -88,7 +88,7 @@ func (a *App) Transform(name string, cells []grid.Ref) (Patch, error) {
 	text, isText := textTransformations[name]
 	sheet, isSheet := sheetTransformations[name]
 	if !isText && !isSheet {
-		return Patch{}, fmt.Errorf("unknown transformation %q; transformations.list names them", name)
+		return Patch{}, fmt.Errorf("unknown transformation %q; transformation.list names them", name)
 	}
 	var p Patch
 	for _, ref := range cells {

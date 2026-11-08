@@ -77,9 +77,9 @@ func TestVerbHistoryKinds(t *testing.T) {
 		}
 	}
 	for key, want := range map[string]string{
-		"sheet.state": ochazuke.HistoryFetch, "transformations.list": ochazuke.HistoryFetch, "sheet.load": ochazuke.HistoryFetch,
+		"transformation.list": ochazuke.HistoryFetch, "sheet.load": ochazuke.HistoryFetch,
 		"sheet.save": ochazuke.HistoryChange, "cell.edit": ochazuke.HistoryChange, "column.sort": ochazuke.HistoryChange, "cell.yank": ochazuke.HistoryChange,
-		"sheet.move": ochazuke.HistoryAction, "sheet.search": ochazuke.HistoryAction, "row.detail": ochazuke.HistoryAction,
+		"sheet.move": ochazuke.HistoryAction, "sheet.find": ochazuke.HistoryAction, "row.show": ochazuke.HistoryAction,
 	} {
 		if got := a.r.Operations.At(ochazuke.Key(a.r.CanonicalKey(key))).HistoryKind; got != want {
 			t.Errorf("%s: %q, want %q", key, got, want)

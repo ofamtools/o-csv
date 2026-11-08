@@ -329,7 +329,7 @@ func (a *App) Save(path string) error {
 		return errReadOnly
 	}
 	if path == "" || path == "-" {
-		return errors.New("the sheet has no file; use sheet.saveAs")
+		return errors.New("the sheet has no file; use sheet.save-as")
 	}
 	t := &Table{Header: a.Header, Rows: a.Rows, Delim: a.Delim}
 	if err := writeAtomic(path, func(w io.Writer) error { return Write(w, t, a.Opts.NoHeader) }); err != nil {

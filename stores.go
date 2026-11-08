@@ -11,7 +11,7 @@ import (
 )
 
 // The sheet's nouns that held a verb named like a core verb (cell edit,
-// row and column delete, sheet edit, transformations list) are thing nouns:
+// row and column delete, sheet edit, transformation list) are thing nouns:
 // each has a facts store over the state it already answers with, so get (and
 // list, where there are many) read it, and create, set, delete, archive and
 // edit are on the noun, unavailable as a system fact. The verbs the tool
@@ -44,7 +44,7 @@ func factLabel(name, desc string) ochazuke.PropSpec {
 // collection declares a noun whose things are the rows list answers; get
 // finds one by its id. A nil list is a noun with no list (get reads by id).
 func collection(r *ochazuke.Runtime, noun string, props []ochazuke.PropSpec, list func() []ochazuke.Thing, get func(string) (ochazuke.Thing, error)) {
-	s := ochazuke.Store{Kind: ochazuke.Collection, Facts: true}
+	s := ochazuke.Store{Kind: ochazuke.KindCollection, Facts: true}
 	if list != nil {
 		s.List = func(ochazuke.Ctx, ochazuke.ListQuery) ([]ochazuke.Thing, error) { return list(), nil }
 		get = func(key string) (ochazuke.Thing, error) {
@@ -70,11 +70,16 @@ func (a *App) defineStores() error {
 		fact("path", "", "The file shown"), fact("editing", "boolean", "Whether editing is on"), fact("dirty", "boolean", "Whether there are unsaved edits"),
 		fact("rows", "integer", "How many rows"), fact("columns", "integer", "How many columns"), fact("visible", "integer", "How many rows the filter shows"),
 		fact("delimiter", "", "The field delimiter"), fact("frozen", "boolean", "Whether the first shown column stays at the left"),
+		fact("undo_steps", "integer", "How many edits undo takes back"), fact("redo_steps", "integer", "How many undone edits redo brings back"), fact("cursor", "object", "The cursor's row and column"),
+		fact("filtered_by", "object", "The column filter"), fact("sorted_by", "object", "The sort"), fact("search_text", "", "The text the find verb looks for"),
+		fact("hidden_columns", "list", "The hidden columns, from 0"), fact("detail_shown", "boolean", "Whether the row detail is shown"),
 	).Store(ochazuke.Store{Kind: ochazuke.Singleton, Facts: true,
 		Get: func(ochazuke.Ctx, string) (ochazuke.Thing, error) {
 			s := a.state()
 			return ochazuke.Thing{"path": s["path"], "editing": s["edit"], "dirty": s["dirty"], "rows": s["rows"], "columns": s["columns"],
-				"visible": s["visible"], "delimiter": s["delimiter"], "frozen": s["freeze"]}, nil
+				"visible": s["visible"], "delimiter": s["delimiter"], "frozen": s["freeze"],
+				"undo_steps": s["undo"], "redo_steps": s["redo"], "cursor": s["cursor"], "filtered_by": s["filter"], "sorted_by": s["sort"], "search_text": s["search"],
+				"hidden_columns": s["hidden"], "detail_shown": s["detail"]}, nil
 		}})
 	collection(r, "row", []ochazuke.PropSpec{
 		factKey("id", "The row's number, from 1"), factLabel("label", "The row's first cells"), fact("cells", "list", "The row's cells"),
@@ -103,7 +108,7 @@ func (a *App) defineStores() error {
 		}
 		return ochazuke.Thing{"id": key, "label": a.Cell(grid.Ref{Row: i - 1, Col: j - 1}), "row": i, "column": j}, nil
 	})
-	collection(r, "transformations", []ochazuke.PropSpec{factKey("id", "The transformation's name"), factLabel("label", "What it does")},
+	collection(r, "transformation", []ochazuke.PropSpec{factKey("id", "The transformation's name"), factLabel("label", "What it does")},
 		func() []ochazuke.Thing {
 			choices := TransformationChoices()
 			out := make([]ochazuke.Thing, len(choices))

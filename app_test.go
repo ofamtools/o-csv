@@ -266,7 +266,7 @@ func TestSearchNextPrevious(t *testing.T) {
 	if !strings.Contains(view(a), "/japan") {
 		t.Fatal("status lacks the query")
 	}
-	if _, err := a.r.Execute(ochazuke.Request{Noun: "sheet", Verb: "search", Args: ochazuke.Arguments{"query": "no such"}}); err == nil {
+	if _, err := a.r.Execute(ochazuke.Request{Noun: "sheet", Verb: "find", Args: ochazuke.Arguments{"query": "no such"}}); err == nil {
 		t.Fatal("a missing match is not an error")
 	}
 	press(t, a, "esc")
@@ -482,7 +482,7 @@ func TestReadOnlyNeverWrites(t *testing.T) {
 		}
 	}
 	for _, q := range []ochazuke.Request{
-		{Noun: "sheet", Verb: "save"}, {Noun: "sheet", Verb: "saveAs", Args: ochazuke.Arguments{"path": path}},
+		{Noun: "sheet", Verb: "save"}, {Noun: "sheet", Verb: "save-as", Args: ochazuke.Arguments{"path": path}},
 		{Noun: "cell", Verb: "clear"}, {Noun: "row", Verb: "delete", Confirmed: true}, {Noun: "sheet", Verb: "undo"},
 		{Noun: "column", Verb: "rename", Args: ochazuke.Arguments{"name": "x"}},
 	} {
@@ -599,7 +599,7 @@ func TestSmokeFrame(t *testing.T) {
 	if err := Main([]string{"--smoke", "--width", "100", cities}, strings.NewReader(""), &out, &errOut); err != nil {
 		t.Fatal(err, errOut.String())
 	}
-	for _, want := range []string{"testdata/cities.csv · read-only · row 1/10 · col 1/7 city", "Tokyo", "population", "enter row.detail"} {
+	for _, want := range []string{"testdata/cities.csv · read-only · row 1/10 · col 1/7 city", "Tokyo", "population", "enter row.show"} {
 		if !strings.Contains(out.String(), want) {
 			t.Fatalf("smoke lacks %q:\n%s", want, out.String())
 		}
@@ -829,7 +829,7 @@ func TestDotRepeatsTheLastChange(t *testing.T) {
 	if a.r.FocusID() != filterID {
 		t.Fatalf("tab: focus %s", a.r.FocusID())
 	}
-	for _, q := range []ochazuke.Request{{Noun: "input", Verb: "insert", Args: ochazuke.Arguments{"text": "o"}}, {Noun: "history", Verb: "repeat"}} {
+	for _, q := range []ochazuke.Request{{Noun: "input", Verb: "insert", Args: ochazuke.Arguments{"text": "o"}}, {Noun: "history-entry", Verb: "repeat"}} {
 		if _, err := a.r.Execute(q); err != nil {
 			t.Fatalf("%s: %v", q.Key(), err)
 		}

@@ -159,7 +159,7 @@ func TestCatalogCarriesTheViewerVerbs(t *testing.T) {
 			have[n.Name+"."+v.Name] = true
 		}
 	}
-	for _, key := range []string{"table.show", "sheet.save", "sheet.edit", "cell.edit", "cell.transform", "row.transform", "column.transform", "ochazuke.selection.transform", "transformations.list"} {
+	for _, key := range []string{"table.show", "sheet.save", "sheet.edit", "cell.edit", "cell.transform", "row.transform", "column.transform", "ochazuke.selection.transform", "transformation.list"} {
 		if !have[key] {
 			t.Errorf("the catalog has no %s", key)
 		}
@@ -178,7 +178,7 @@ func TestCatalogCarriesTheViewerVerbs(t *testing.T) {
 	}
 	sh := newShell(nil, io.Discard, io.Discard)
 	for _, q := range []ochazuke.Request{
-		{Noun: "sheet", Verb: "save"}, {Noun: "sheet", Verb: "addColumn", Args: ochazuke.Arguments{"name": "x"}},
+		{Noun: "sheet", Verb: "save"}, {Noun: "sheet", Verb: "add-column", Args: ochazuke.Arguments{"name": "x"}},
 		{Noun: "cell", Verb: "transform", Args: ochazuke.Arguments{"name": "upper"}},
 		{Noun: "row", Verb: "transform", Args: ochazuke.Arguments{"name": "upper"}},
 		{Noun: "column", Verb: "transform", Args: ochazuke.Arguments{"name": "upper"}},
@@ -191,7 +191,7 @@ func TestCatalogCarriesTheViewerVerbs(t *testing.T) {
 	if _, err := sh.Runtime.Execute(ochazuke.Request{Noun: "sheet", Verb: "edit", Args: ochazuke.Arguments{"on": true}}); err != nil {
 		t.Fatal(err)
 	}
-	for _, q := range []ochazuke.Request{{Noun: "sheet", Verb: "save"}, {Noun: "sheet", Verb: "addColumn", Args: ochazuke.Arguments{"name": "x"}}, {Noun: "sheet", Verb: "undo"}} {
+	for _, q := range []ochazuke.Request{{Noun: "sheet", Verb: "save"}, {Noun: "sheet", Verb: "add-column", Args: ochazuke.Arguments{"name": "x"}}, {Noun: "sheet", Verb: "undo"}} {
 		if _, err := sh.Runtime.Execute(q); err == nil {
 			t.Errorf("%s ran with editing on and no sheet", q.Key())
 		}

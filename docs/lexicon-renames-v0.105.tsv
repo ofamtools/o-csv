@@ -1,0 +1,11 @@
+kind	old	new	note
+noun	csv.transformations	csv.transformation	plural noun
+operation	csv.sheet.column	csv.sheet.goto	column is a noun
+operation	csv.sheet.search	csv.sheet.find	search is a noun
+operation	csv.row.detail	csv.row.show	detail is a noun; view is show
+operation	csv.sheet.addColumn	csv.sheet.add-column	camelCase verb names are kebab-case
+operation	csv.row.insertBelow	csv.row.insert-below	camelCase verb names are kebab-case
+operation	csv.sheet.saveAs	csv.sheet.save-as	camelCase verb names are kebab-case
+operation	csv.sheet.state	csv.sheet.get	state verbs are the thing's props: undo_steps, redo_steps, cursor, filtered_by, sorted_by, search_text, hidden_columns, detail_shown
+binding	row.detail, sheet.column, sheet.search, sheet.addColumn, row.insertBelow	row.show, sheet.goto, sheet.find, sheet.add-column, row.insert-below	bindings.go key rows
+source	transformations.list	transformation.list	the transform verbs' name choices

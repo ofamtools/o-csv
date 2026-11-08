@@ -87,7 +87,7 @@ func (a *App) registerVerbs() {
 		Verb("move", verb(func(c ochazuke.Context, args ochazuke.Arguments) (any, error) {
 			return done(a.move(ochazuke.StringArg(args, "motion", ""), ochazuke.IntArg(args, "steps", 1), ochazuke.IntArg(args, "line", 0)))
 		}), "Move the cursor: left, right, up, down, row-start, row-end, top, bottom, half-down, half-up, page-down, page-up; hidden columns are skipped").Motion().
-		Verb("column", verb(func(c ochazuke.Context, args ochazuke.Arguments) (any, error) {
+		Verb("goto", verb(func(c ochazuke.Context, args ochazuke.Arguments) (any, error) {
 			if n := ochazuke.StringArg(args, "name", ""); n != "" {
 				return done(a.jumpColumn(n))
 			}
@@ -96,7 +96,7 @@ func (a *App) registerVerbs() {
 			}
 			return nil, a.prompt("Go to column (name or number)", "", "", a.jumpColumn)
 		}), "Jump to a column by 1-based index or by name (exact, then prefix, then substring); with neither, ask").Motion().
-		Verb("search", verb(func(c ochazuke.Context, args ochazuke.Arguments) (any, error) {
+		Verb("find", verb(func(c ochazuke.Context, args ochazuke.Arguments) (any, error) {
 			if q, ok := args["query"].(string); ok {
 				return done(a.search(q))
 			}
@@ -122,8 +122,7 @@ func (a *App) registerVerbs() {
 				on = v
 			}
 			return done(a.setEdit(on))
-		}), "Turn editing on or off (toggle); off, nothing writes the file").
-		Verb("state", verb(func(ochazuke.Context, ochazuke.Arguments) (any, error) { return a.state(), nil }), "The sheet's path, counts, cursor and view state").Fetch()
+		}), "Turn editing on or off (toggle); off, nothing writes the file")
 	params("sheet.load", path)
 	params("sheet.open", path)
 	params("sheet.move", map[string]ochazuke.Parameter{
@@ -131,13 +130,13 @@ func (a *App) registerVerbs() {
 		"steps":  {Type: "integer", Description: "Repeat count (default 1)"},
 		"line":   {Type: "integer", Description: "1-based row for top and bottom"},
 	})
-	params("sheet.column", map[string]ochazuke.Parameter{
+	params("sheet.goto", map[string]ochazuke.Parameter{
 		"index": {Type: "integer", Description: "1-based column number"},
 		"name":  {Type: "string", Description: "Column name, prefix or substring"},
 	})
-	params("sheet.search", map[string]ochazuke.Parameter{"query": {Type: "string", Description: "Omit to be asked in a prompt"}})
+	params("sheet.find", map[string]ochazuke.Parameter{"query": {Type: "string", Description: "Omit to be asked in a prompt"}})
 	params("sheet.edit", map[string]ochazuke.Parameter{"on": {Type: "boolean", Description: "Omit to toggle"}})
-	setHistory(r, ochazuke.HistoryAction, "sheet.open", "sheet.move", "sheet.column", "sheet.search", "sheet.next", "sheet.previous", "sheet.clear", "sheet.unhide", "sheet.freeze", "sheet.edit")
+	setHistory(r, ochazuke.HistoryAction, "sheet.open", "sheet.move", "sheet.goto", "sheet.find", "sheet.next", "sheet.previous", "sheet.clear", "sheet.unhide", "sheet.freeze", "sheet.edit")
 	// load reads the file and shows it: a fetch, as the framework's reloads are.
 	setHistory(r, ochazuke.HistoryFetch, "sheet.load")
 
@@ -188,7 +187,7 @@ func (a *App) registerVerbs() {
 	setHistory(r, ochazuke.HistoryChange, "column.sort")
 
 	r.Define("row").
-		Verb("detail", verb(func(c ochazuke.Context, args ochazuke.Arguments) (any, error) {
+		Verb("show", verb(func(c ochazuke.Context, args ochazuke.Arguments) (any, error) {
 			a.toggleDetail()
 			return a.state(), nil
 		}), "Show or hide the row detail: every column of the cursor's row, beside the table (below it when narrow); J and K scroll it").When(grid.GuardInGrid).
@@ -211,7 +210,7 @@ func (a *App) registerVerbs() {
 			return a.copyText(c, "cell", a.Cell(at), ochazuke.StringArg(c.Args, "register", ""))
 		}, "Copy the cell's value into the registers and the system clipboard")
 	params("cell.yank", register)
-	setHistory(r, ochazuke.HistoryAction, "row.detail")
+	setHistory(r, ochazuke.HistoryAction, "row.show")
 	// A yank writes the registers and the clipboard, as input.yank does.
 	setHistory(r, ochazuke.HistoryChange, "row.yank", "cell.yank")
 	// . yanks again at the cursor: the repeat keeps only the register.
@@ -389,13 +388,13 @@ func (a *App) registerEditVerbs(verb func(func(ochazuke.Context, ochazuke.Argume
 			}
 			return done(a.saveTo(a.Path))
 		}), "Write the sheet to its file (edit mode)").When(guardEdit).
-		Verb("saveAs", verb(func(c ochazuke.Context, args ochazuke.Arguments) (any, error) {
+		Verb("save-as", verb(func(c ochazuke.Context, args ochazuke.Arguments) (any, error) {
 			if p := ochazuke.StringArg(args, "path", ""); p != "" {
 				return done(a.saveTo(p))
 			}
 			return nil, a.prompt("Save as", a.Path, "path", a.saveTo)
 		}), "Write the sheet to another file and keep editing it there (edit mode)").When(guardEdit).
-		Verb("addColumn", verb(func(c ochazuke.Context, args ochazuke.Arguments) (any, error) {
+		Verb("add-column", verb(func(c ochazuke.Context, args ochazuke.Arguments) (any, error) {
 			add := func(name string) error {
 				return a.Apply(Patch{Columns: []ColumnChange{{Index: len(a.Header), After: &Column{Name: name, Values: make([]string, len(a.Rows))}}}})
 			}
@@ -406,8 +405,8 @@ func (a *App) registerEditVerbs(verb func(func(ochazuke.Context, ochazuke.Argume
 		}), "Append a column (edit mode)").When(guardEdit).
 		Verb("undo", verb(func(ochazuke.Context, ochazuke.Arguments) (any, error) { return done(a.UndoPatch()) }), "Revert the last edit").When(guardEdit).
 		Verb("redo", verb(func(ochazuke.Context, ochazuke.Arguments) (any, error) { return done(a.RedoPatch()) }), "Replay the last undone edit").When(guardEdit)
-	params("sheet.saveAs", path)
-	params("sheet.addColumn", name)
+	params("sheet.save-as", path)
+	params("sheet.add-column", name)
 
 	// cells resolves the cells a verb acts on: the selection when one is
 	// active, else the focused cell.
@@ -459,7 +458,7 @@ func (a *App) registerEditVerbs(verb func(func(ochazuke.Context, ochazuke.Argume
 		return transformCells(ochazuke.StringArg(args, "name", ""), cells(c))
 	})
 	register := map[string]ochazuke.Parameter{"register": {Type: "string", Description: "Register name; the active register, else the unnamed one"}}
-	transformParams := map[string]ochazuke.Parameter{"name": {Type: "string", Required: true, Source: "transformations.list", Description: "A transformation; transformations.list names them"}}
+	transformParams := map[string]ochazuke.Parameter{"name": {Type: "string", Required: true, Source: "transformation.list", Description: "A transformation; transformation.list names them"}}
 
 	r.Define("cell").
 		Verb("edit", verb(func(c ochazuke.Context, args ochazuke.Arguments) (any, error) {
@@ -495,7 +494,7 @@ func (a *App) registerEditVerbs(verb func(func(ochazuke.Context, ochazuke.Argume
 			}
 			return done(a.Apply(Patch{Rows: []RowChange{{Index: i, Before: slices.Clone(a.Rows[i])}}}))
 		}), "Delete the row under the cursor (edit mode)").Confirm("Delete row {{id}}?").Agent(ochazuke.AgentAllow).When(guardEditGrid).
-		Verb("insertBelow", verb(func(c ochazuke.Context, args ochazuke.Arguments) (any, error) {
+		Verb("insert-below", verb(func(c ochazuke.Context, args ochazuke.Arguments) (any, error) {
 			i := a.grid.At(c).Row
 			if err := a.Apply(Patch{Rows: []RowChange{{Index: i + 1, After: make([]string, len(a.Header))}}}); err != nil {
 				return nil, err
@@ -626,10 +625,10 @@ func (a *App) registerEditVerbs(verb func(func(ochazuke.Context, ochazuke.Argume
 	params("selection.paste", register)
 	params("selection.transform", transformParams)
 
-	r.Define("transformations").
-		Verb("list", verb(func(ochazuke.Context, ochazuke.Arguments) (any, error) { return TransformationChoices(), nil }), "List the transformations transform accepts: ids with labels, the transform name's pick list").Fetch()
-	setHistory(r, ochazuke.HistoryChange, "sheet.save", "sheet.saveAs", "sheet.addColumn", "sheet.undo", "sheet.redo",
-		"cell.edit", "cell.clear", "cell.paste", "cell.transform", "row.delete", "row.insertBelow", "row.duplicate", "row.transform",
+	r.Define("transformation").
+		Verb("list", verb(func(ochazuke.Context, ochazuke.Arguments) (any, error) { return TransformationChoices(), nil }), "List the transformation transform accepts: ids with labels, the transform name's pick list").Fetch()
+	setHistory(r, ochazuke.HistoryChange, "sheet.save", "sheet.save-as", "sheet.add-column", "sheet.undo", "sheet.redo",
+		"cell.edit", "cell.clear", "cell.paste", "cell.transform", "row.delete", "row.insert-below", "row.duplicate", "row.transform",
 		"column.rename", "column.delete", "column.transform", "selection.yank", "selection.cut", "selection.paste", "selection.clear", "selection.transform")
 	// The yank ends the selection, so its repeat has none to yank: the
 	// selecting guard keeps dot from running it ("nothing to repeat").
