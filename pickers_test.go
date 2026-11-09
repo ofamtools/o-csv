@@ -24,7 +24,7 @@ func TestDeclaredPickers(t *testing.T) {
 }
 
 // ctrl+o in a prompt opens the path picker (picker.open, the path picker's
-// find source) and esc closes it, leaving the prompt as it was.
+// find source) and esc then q closes it, leaving the prompt as it was.
 func TestPromptCtrlOOpensPathPicker(t *testing.T) {
 	a := open(t, cities, true)
 	if err := a.prompt("Path", "", "", func(string) error { return nil }); err != nil {
@@ -34,8 +34,8 @@ func TestPromptCtrlOOpensPathPicker(t *testing.T) {
 	if a.r.Chooser(ochazuke.PathChooserKind) == nil {
 		t.Fatal("ctrl+o in the prompt did not open the path picker")
 	}
-	press(t, a, "esc")
+	press(t, a, "esc", "q")
 	if a.r.Chooser(ochazuke.PathChooserKind) != nil {
-		t.Fatal("esc did not close the path picker")
+		t.Fatal("esc, q did not close the path picker")
 	}
 }
