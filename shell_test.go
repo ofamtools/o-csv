@@ -242,3 +242,16 @@ func TestCatalogDeclaresSingularNamespace(t *testing.T) {
 		t.Fatal(got, err)
 	}
 }
+
+// A file in the working directory named like a command must not turn the
+// command into the TUI: a host runs `catalog` with no terminal.
+func TestCatalogIgnoresShadowingFile(t *testing.T) {
+	t.Chdir(t.TempDir())
+	if err := os.WriteFile("catalog", nil, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	var doc struct{ Name string }
+	if err := json.Unmarshal(cli(t, "catalog"), &doc); err != nil || doc.Name != "o-csv" {
+		t.Fatalf("catalog: %v %+v", err, doc)
+	}
+}

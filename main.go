@@ -51,17 +51,16 @@ func progName() string {
 	return "o-csv"
 }
 
-// Main runs one invocation. A first word that is an existing file opens it
-// in the TUI even when it shadows a command name; otherwise oden resolves
-// the command words, and anything it does not know (flags, -, a path)
-// reaches the TUI.
+// Main runs one invocation. oden resolves the command words first, so a
+// file in the working directory named like a command (a stray empty
+// "catalog") never turns `o-csv catalog` into the TUI, which a host runs
+// with no terminal. Anything oden does not know (flags, -, a path, a file
+// that is not a command name) reaches the TUI; `o-csv ./catalog` opens the
+// file that shadows a command.
 func Main(args []string, stdin io.Reader, stdout, stderr io.Writer) error {
-	if len(args) > 0 && isFile(args[0]) {
-		return runTUI(args, stdin, stdout, stderr)
-	}
 	app := oden.New("o-csv", args, oden.WithBuiltins(), oden.WithStdio(stdin, stdout, stderr),
 		oden.WithDefault(func(_ context.Context, args []string) error {
-			if len(args) > 0 && !strings.HasPrefix(args[0], "-") && !strings.ContainsAny(args[0], "./") {
+			if len(args) > 0 && !strings.HasPrefix(args[0], "-") && !strings.ContainsAny(args[0], "./") && !isFile(args[0]) {
 				return oden.ErrNotFound
 			}
 			return runTUI(args, stdin, stdout, stderr)
