@@ -172,25 +172,46 @@ func ReadFile(path string, opts Options) (*Table, error) {
 	return Read(f, opts)
 }
 
+// blankRecord reports a record of one empty field. CSV writes it as an empty
+// line, which a reader skips, so it is written as "" to survive a reread.
+func blankRecord(rec []string) bool { return len(rec) == 1 && rec[0] == "" }
+
 // Write writes the header (unless noHeader) and rows with the delimiter.
 func Write(w io.Writer, t *Table, noHeader bool) error {
 	cw := csv.NewWriter(w)
 	if t.Delim != 0 {
 		cw.Comma = t.Delim
 	}
+	put := func(rec []string) error {
+		if !blankRecord(rec) {
+			return cw.Write(rec)
+		}
+		cw.Flush()
+		if err := cw.Error(); err != nil {
+			return err
+		}
+		_, err := io.WriteString(w, "\"\"\n")
+		return err
+	}
 	if !noHeader {
-		if err := cw.Write(t.Header); err != nil {
+		if err := put(t.Header); err != nil {
 			return err
 		}
 	}
-	if err := cw.WriteAll(t.Rows); err != nil {
-		return err
+	for _, r := range t.Rows {
+		if err := put(r); err != nil {
+			return err
+		}
 	}
+	cw.Flush()
 	return cw.Error()
 }
 
 // RowCSV is one row as a CSV line (no trailing newline) with the delimiter.
 func RowCSV(row []string, delim rune) string {
+	if blankRecord(row) {
+		return `""`
+	}
 	var b strings.Builder
 	cw := csv.NewWriter(&b)
 	if delim != 0 {
