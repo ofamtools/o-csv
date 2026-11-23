@@ -1,0 +1,314 @@
+{
+  "tool": "o-csv",
+  "title": "o-csv Interactive Walkthrough",
+  "description": "Explore, filter, sort, group, inspect, yank, and safely edit CSV files in a viewing-first terminal grid.",
+  "command": "o-csv docs/tutorials/fixtures/sales.csv",
+  "width": 120,
+  "height": 34,
+  "sections": [
+    {
+      "id": "navigate",
+      "title": "Navigate Rows, Columns, and Cells",
+      "goal": "Move quickly across rows and columns using Vim motions, numeric counts, and start/end column jumps.",
+      "steps": [
+        {
+          "caption": "Open sales.csv in safe read-only VIEW mode showing all 20 rows and 7 columns.",
+          "expect": ["sales.csv", "20 rows × 7 cols", "VIEW", "S-101", "Maya Lin"],
+          "pauseMs": 1400
+        },
+        {
+          "caption": "Jump down three rows at once with a count prefix (3j).",
+          "keys": ["3", "j"],
+          "expect": ["row 4/20", "S-104", "Owen Brooks"],
+          "pauseMs": 1100
+        },
+        {
+          "caption": "Jump directly to the last row of the dataset.",
+          "command": "motion.bottom",
+          "expect": ["row 20/20", "S-120"],
+          "pauseMs": 1100
+        },
+        {
+          "caption": "Jump back to the top row and move across five columns to amount.",
+          "command": "motion.top",
+          "keys": ["5", "l"],
+          "expect": ["row 1/20", "col 6/7", "▸amount", "amount = 24500"],
+          "pauseMs": 1200
+        },
+        {
+          "caption": "Jump to the last column to inspect the active cell's notes.",
+          "command": "motion.end",
+          "expect": ["col 7/7", "▸notes"],
+          "pauseMs": 1100
+        },
+        {
+          "caption": "Return to the first column with 0.",
+          "command": "motion.start",
+          "keys": ["0"],
+          "expect": ["col 1/7", "▸id", "id = S-101"],
+          "pauseMs": 1000
+        }
+      ]
+    },
+    {
+      "id": "filter",
+      "title": "Filter Across All Columns or One Column",
+      "goal": "Narrow rows interactively as you type, apply a column-scoped regex filter, and clear back to the full dataset.",
+      "steps": [
+        {
+          "caption": "Filter across every column for Cloud deals and press Enter to keep the results.",
+          "command": "filter.all",
+          "keys": ["Cloud", "enter"],
+          "expect": ["(7 of 20 match)", "filter substring all \"Cloud\"", "S-101", "S-105"],
+          "pauseMs": 1400
+        },
+        {
+          "caption": "Clear the active filter with Esc to restore all 20 rows.",
+          "command": "filter.clear",
+          "expect": ["filter cleared", "row 1/20"],
+          "pauseMs": 1000
+        },
+        {
+          "caption": "Move to the status column before applying a column filter.",
+          "keys": ["4", "l"],
+          "expect": ["▸status"],
+          "pauseMs": 400,
+          "capture": false
+        },
+        {
+          "caption": "Filter only the status column using Tab to switch to regex mode and match open|pending.",
+          "command": "filter.column",
+          "keys": ["tab", "tab", "open|pending", "enter"],
+          "expect": ["(8 of 20 match)", "filter regex status \"open|pending\"", "S-102", "S-104"],
+          "pauseMs": 1500
+        },
+        {
+          "caption": "Clear the column filter with Esc to restore all 20 rows while keeping focus on S-102.",
+          "command": "filter.clear",
+          "expect": ["filter cleared", "row 2/20", "S-102"],
+          "pauseMs": 1000
+        },
+        {
+          "caption": "Cycle match mode back to substring and return to row 1.",
+          "keys": ["/", "tab", "esc", "g", "g"],
+          "expect": ["row 1/20"],
+          "pauseMs": 300,
+          "capture": false
+        }
+      ]
+    },
+    {
+      "id": "sort-group",
+      "title": "Sort Numerically and Group Rows",
+      "goal": "Sort columns with numeric awareness and organize rows into collapsible groups.",
+      "steps": [
+        {
+          "caption": "Move to the numeric amount column.",
+          "keys": ["l"],
+          "expect": ["▸amount"],
+          "pauseMs": 400,
+          "capture": false
+        },
+        {
+          "caption": "Sort amount ascending so numeric values order from 4600 upward.",
+          "command": "sort.cycle",
+          "expect": ["amount ▲", "sorted by amount ascending", "S-104", "4600"],
+          "pauseMs": 1300
+        },
+        {
+          "caption": "Press s again to sort amount descending and bring the largest deals to the top.",
+          "command": "sort.cycle",
+          "expect": ["amount ▼", "sorted by amount descending", "S-110", "42000"],
+          "pauseMs": 1300
+        },
+        {
+          "caption": "Press s a third time to restore the original file order.",
+          "command": "sort.cycle",
+          "expect": ["file order", "S-101"],
+          "pauseMs": 1000
+        },
+        {
+          "caption": "Move to the region column to group deals geographically.",
+          "keys": ["4", "h"],
+          "expect": ["▸region"],
+          "pauseMs": 400,
+          "capture": false
+        },
+        {
+          "caption": "Group rows by the active region column.",
+          "command": "group.toggle",
+          "expect": ["grouped by region", "North", "West"],
+          "pauseMs": 1400
+        },
+        {
+          "caption": "Fold the focused region group to collapse its rows out of the way.",
+          "command": "group.collapse",
+          "expect": ["grouped by region"],
+          "pauseMs": 1200
+        },
+        {
+          "caption": "Ungroup with g b to return to the flat table view.",
+          "command": "group.toggle",
+          "expect": ["ungrouped", "row 1/20"],
+          "pauseMs": 1000
+        }
+      ]
+    },
+    {
+      "id": "inspect-yank",
+      "title": "Inspect Row Details, Manage Columns, and Yank",
+      "goal": "Read full unclipped values in the detail split pane, hide noisy columns, and yank cells or rows.",
+      "steps": [
+        {
+          "caption": "Open the row detail pane to inspect every column of the focused row in full.",
+          "command": "detail.toggle",
+          "expect": ["Row 1 of 20", "notes:", "Annual enterprise seat expansion"],
+          "pauseMs": 1400
+        },
+        {
+          "caption": "Widen the grid pane next to the detail split.",
+          "command": "split.grow",
+          "expect": ["Row 1 of 20", "sales.csv"],
+          "pauseMs": 1100
+        },
+        {
+          "caption": "Hide the active region column from the grid while keeping it marked hidden in the detail pane.",
+          "command": "column.hide",
+          "expect": ["hid region", "(1 hidden)", "region (hidden)"],
+          "pauseMs": 1300
+        },
+        {
+          "caption": "Restore all hidden columns at once.",
+          "command": "column.show.all",
+          "expect": ["showing 1 hidden column(s)"],
+          "pauseMs": 1100
+        },
+        {
+          "caption": "Yank the active cell value to the register and clipboard.",
+          "command": "yank.cell",
+          "expect": ["yanked rep"],
+          "pauseMs": 1100
+        },
+        {
+          "caption": "Yank the entire focused row as a CSV record.",
+          "command": "yank.row",
+          "expect": ["yanked row"],
+          "pauseMs": 1100
+        },
+        {
+          "caption": "Close the detail pane and move to the status column for editing.",
+          "command": "detail.toggle",
+          "keys": ["2", "l"],
+          "expect": ["▸status", "status = won"],
+          "pauseMs": 400,
+          "capture": false
+        }
+      ]
+    },
+    {
+      "id": "edit",
+      "title": "Edit Rows, Transform Cells, and Undo/Redo",
+      "goal": "Enable edit mode, transform cell casing, edit values in a validated row form, insert/delete rows, and undo or redo cleanly.",
+      "steps": [
+        {
+          "caption": "Switch from read-only VIEW mode into EDIT mode.",
+          "command": "edit.toggle",
+          "expect": ["EDIT", "edit mode"],
+          "pauseMs": 1200
+        },
+        {
+          "caption": "Upper-case the active status cell in place.",
+          "command": "edit.upper",
+          "expect": ["upper-cased status", "WON", "unsaved edits"],
+          "pauseMs": 1200
+        },
+        {
+          "caption": "Title-case the active status cell.",
+          "command": "edit.title",
+          "expect": ["title-cased status", "Won"],
+          "pauseMs": 1100
+        },
+        {
+          "caption": "Open the validated row edit form, update amount to 26000, and apply.",
+          "command": "edit.row",
+          "keys": ["tab", "tab", "tab", "tab", "tab", "ctrl+u", "26000", "enter"],
+          "expect": ["edited row 1", "26000"],
+          "pauseMs": 1400
+        },
+        {
+          "caption": "Insert a blank row directly below the cursor.",
+          "command": "edit.insert",
+          "expect": ["inserted row 2", "21 rows × 7 cols"],
+          "pauseMs": 1200
+        },
+        {
+          "caption": "Delete the blank row with d d.",
+          "command": "edit.delete",
+          "expect": ["deleted row 2", "20 rows × 7 cols"],
+          "pauseMs": 1200
+        },
+        {
+          "caption": "Undo the row deletion with u.",
+          "command": "history.undo",
+          "expect": ["undo: row delete", "21 rows × 7 cols"],
+          "pauseMs": 1200
+        },
+        {
+          "caption": "Redo the row deletion with Ctrl+R.",
+          "command": "history.redo",
+          "expect": ["redo: row delete", "20 rows × 7 cols"],
+          "pauseMs": 1200
+        },
+        {
+          "caption": "Undo remaining edits back to the original clean document.",
+          "keys": ["u", "u", "u", "u", "u"],
+          "expect": ["undo: cell edit", "won"],
+          "pauseMs": 400,
+          "capture": false
+        },
+        {
+          "caption": "Return to safe read-only VIEW mode with Ctrl+E.",
+          "command": "edit.toggle",
+          "expect": ["VIEW", "view mode (read-only)"],
+          "pauseMs": 1100
+        }
+      ]
+    },
+    {
+      "id": "help-palette",
+      "title": "Live Key Help and Command Palette",
+      "goal": "Inspect active key bindings in the live help overlay and find any action from the command palette.",
+      "steps": [
+        {
+          "caption": "Open live help (?) generated directly from the active keymap.",
+          "command": "help.open",
+          "expect": ["Help · active key bindings", "filter.all", "sort.cycle"],
+          "pauseMs": 1500
+        },
+        {
+          "caption": "Close the help overlay.",
+          "command": "help.close",
+          "mode": "help",
+          "expect": ["sales.csv", "VIEW"],
+          "pauseMs": 400,
+          "capture": false
+        },
+        {
+          "caption": "Open the command palette (:) and filter for sort commands.",
+          "command": "palette.open",
+          "keys": ["sort"],
+          "expect": ["Command palette", "sort.cycle"],
+          "pauseMs": 1500
+        },
+        {
+          "caption": "Close the command palette to return to the grid.",
+          "command": "palette.close",
+          "mode": "palette",
+          "expect": ["sales.csv", "VIEW"],
+          "pauseMs": 600,
+          "capture": false
+        }
+      ]
+    }
+  ]
+}

@@ -117,6 +117,23 @@ func newOdenApp(args []string, stdin io.Reader, stdout, stderr io.Writer) *oden.
 				return nil
 			},
 		},
+		oden.Command{
+			Name:    "tutorial",
+			Summary: "build deterministic illustrated tutorials, VHS tapes, and videos",
+			Children: []oden.Command{
+				{
+					Name:    "build",
+					Summary: "run a tutorial spec headlessly and emit HTML, VHS tape, SRT, JSON, and optional MP4",
+					Usage:   "[--spec PATH] [--out DIR] [--vhs]",
+					Handle: func(c *oden.Ctx) error {
+						if code := runTutorialBuild(c.Args, stdout, stderr); code != 0 {
+							return &oden.ExitError{Code: code}
+						}
+						return nil
+					},
+				},
+			},
+		},
 	)
 
 	// Any non-command args (empty, flags, positional FILE, "./show", "-- show", "-")

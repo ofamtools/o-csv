@@ -1,0 +1,164 @@
+1
+00:00:00,000 --> 00:00:01,400
+Open sales.csv in safe read-only VIEW mode showing all 20 rows and 7 columns.
+
+2
+00:00:01,400 --> 00:00:02,500
+Jump down three rows at once with a count prefix (3j).
+
+3
+00:00:02,500 --> 00:00:03,600
+Jump directly to the last row of the dataset.
+
+4
+00:00:03,600 --> 00:00:04,800
+Jump back to the top row and move across five columns to amount.
+
+5
+00:00:04,800 --> 00:00:05,900
+Jump to the last column to inspect the active cell's notes.
+
+6
+00:00:05,900 --> 00:00:06,900
+Return to the first column with 0.
+
+7
+00:00:06,900 --> 00:00:08,300
+Filter across every column for Cloud deals and press Enter to keep the results.
+
+8
+00:00:08,300 --> 00:00:09,300
+Clear the active filter with Esc to restore all 20 rows.
+
+9
+00:00:09,300 --> 00:00:09,700
+Move to the status column before applying a column filter.
+
+10
+00:00:09,700 --> 00:00:11,200
+Filter only the status column using Tab to switch to regex mode and match open|pending.
+
+11
+00:00:11,200 --> 00:00:12,200
+Clear the column filter with Esc to restore all 20 rows while keeping focus on S-102.
+
+12
+00:00:12,200 --> 00:00:12,500
+Cycle match mode back to substring and return to row 1.
+
+13
+00:00:12,500 --> 00:00:12,900
+Move to the numeric amount column.
+
+14
+00:00:12,900 --> 00:00:14,200
+Sort amount ascending so numeric values order from 4600 upward.
+
+15
+00:00:14,200 --> 00:00:15,500
+Press s again to sort amount descending and bring the largest deals to the top.
+
+16
+00:00:15,500 --> 00:00:16,500
+Press s a third time to restore the original file order.
+
+17
+00:00:16,500 --> 00:00:16,900
+Move to the region column to group deals geographically.
+
+18
+00:00:16,900 --> 00:00:18,300
+Group rows by the active region column.
+
+19
+00:00:18,300 --> 00:00:19,500
+Fold the focused region group to collapse its rows out of the way.
+
+20
+00:00:19,500 --> 00:00:20,500
+Ungroup with g b to return to the flat table view.
+
+21
+00:00:20,500 --> 00:00:21,900
+Open the row detail pane to inspect every column of the focused row in full.
+
+22
+00:00:21,900 --> 00:00:23,000
+Widen the grid pane next to the detail split.
+
+23
+00:00:23,000 --> 00:00:24,300
+Hide the active region column from the grid while keeping it marked hidden in the detail pane.
+
+24
+00:00:24,300 --> 00:00:25,400
+Restore all hidden columns at once.
+
+25
+00:00:25,400 --> 00:00:26,500
+Yank the active cell value to the register and clipboard.
+
+26
+00:00:26,500 --> 00:00:27,600
+Yank the entire focused row as a CSV record.
+
+27
+00:00:27,600 --> 00:00:28,000
+Close the detail pane and move to the status column for editing.
+
+28
+00:00:28,000 --> 00:00:29,200
+Switch from read-only VIEW mode into EDIT mode.
+
+29
+00:00:29,200 --> 00:00:30,400
+Upper-case the active status cell in place.
+
+30
+00:00:30,400 --> 00:00:31,500
+Title-case the active status cell.
+
+31
+00:00:31,500 --> 00:00:32,900
+Open the validated row edit form, update amount to 26000, and apply.
+
+32
+00:00:32,900 --> 00:00:34,100
+Insert a blank row directly below the cursor.
+
+33
+00:00:34,100 --> 00:00:35,300
+Delete the blank row with d d.
+
+34
+00:00:35,300 --> 00:00:36,500
+Undo the row deletion with u.
+
+35
+00:00:36,500 --> 00:00:37,700
+Redo the row deletion with Ctrl+R.
+
+36
+00:00:37,700 --> 00:00:38,100
+Undo remaining edits back to the original clean document.
+
+37
+00:00:38,100 --> 00:00:39,200
+Return to safe read-only VIEW mode with Ctrl+E.
+
+38
+00:00:39,200 --> 00:00:40,700
+Open live help (?) generated directly from the active keymap.
+
+39
+00:00:40,700 --> 00:00:41,100
+Close the help overlay.
+
+40
+00:00:41,100 --> 00:00:42,600
+Open the command palette (:) and filter for sort commands.
+
+41
+00:00:42,600 --> 00:00:43,200
+Close the command palette to return to the grid.
+

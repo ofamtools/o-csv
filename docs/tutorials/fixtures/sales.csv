@@ -1,0 +1,21 @@
+id,region,rep,category,status,amount,notes
+S-101,North,Maya Lin,Cloud,won,24500,"Annual enterprise seat expansion, Q1 kickoff"
+S-102,West,Diego Cruz,Hardware,open,8400,Edge gateway pilot for Portland warehouse
+S-103,East,Priya Nair,Services,won,19200,"Migration workshop and runbook handoff"
+S-104,South,Owen Brooks,Support,pending,4600,24x7 SLA renewal awaiting legal sign-off
+S-105,North,Hana Sato,Cloud,open,31800,"Multi-region cluster rollout, phase two"
+S-106,West,Liam Patel,Services,won,15400,Custom CSV ingestion pipeline setup
+S-107,East,Clara Rossi,Hardware,lost,6200,Deferred until next fiscal budget cycle
+S-108,South,Noah Kim,Cloud,won,28900,"SOC2 compliance tier upgrade, 3-year term"
+S-109,North,Maya Lin,Support,won,7100,Dedicated technical account review
+S-110,West,Diego Cruz,Cloud,pending,42000,"Global analytics lakehouse expansion"
+S-111,East,Priya Nair,Support,open,5300,Quarterly health check add-on
+S-112,South,Owen Brooks,Hardware,won,12750,"Rack mount appliance bundle, Dallas DC"
+S-113,North,Hana Sato,Services,open,16900,Zero-downtime cutover advisory
+S-114,West,Liam Patel,Cloud,won,36400,"Production disaster recovery replication"
+S-115,East,Clara Rossi,Services,pending,11300,Staff enablement and CLI training
+S-116,South,Noah Kim,Support,won,6800,Priority incident response retainer
+S-117,North,Maya Lin,Hardware,lost,9500,Consolidated with existing colocation gear
+S-118,West,Diego Cruz,Services,won,21600,"Observability dashboard integration"
+S-119,East,Priya Nair,Cloud,open,27400,"Staging environment auto-scaling tier"
+S-120,South,Owen Brooks,Cloud,won,33100,"Enterprise backup vault, annual prepay"
