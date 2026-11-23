@@ -17,6 +17,7 @@ import (
 	otea "ofam.dev/ochazuke/tea"
 	"ofam.dev/ochazuke/ui"
 	"ofam.dev/ochazuke/widgets/form"
+	"ofam.dev/ochazuke/widgets/input"
 	"ofam.dev/ochazuke/widgets/pathpicker"
 	"ofam.dev/ochazuke/widgets/picker"
 	"ofam.dev/ochazuke/widgets/table"
@@ -46,6 +47,7 @@ type App struct {
 	Grid table.Model // display model: projected rows, grouping, cursor
 
 	Query     string
+	QueryLine input.Line
 	Field     int // filtered column; -1 = all columns (hidden ones included)
 	Match     table.MatchMode
 	FilterErr string
@@ -83,6 +85,7 @@ func newApp(env *Env, doc Doc, edit bool) App {
 func (a App) clone() App {
 	a.Hidden = maps.Clone(a.Hidden)
 	a.Grid = a.Grid.Copy()
+	a.QueryLine.Text = slices.Clone(a.QueryLine.Text)
 	return a
 }
 
@@ -404,7 +407,7 @@ func commandSpecs() []core.CommandSpec {
 		internal(form.CmdCancel, "Discard the form"),
 		internal("clipboard.done", "Clipboard copy finished"),
 	}
-	return specs
+	return append(specs, input.ReadlineSpecs()...)
 }
 
 func b(mode, keys, cmd, hint string) core.Binding {
@@ -538,6 +541,22 @@ func defaultBindings() []core.Binding {
 		b("help", "?", "help.close", "close"),
 		b("help", "ctrl+c", "help.close", "close"),
 	)
+	for _, mode := range []string{"input", "palette", "files", "form"} {
+		taken := map[string]bool{}
+		for _, bd := range out {
+			if bd.Mode == mode && len(bd.Keys) > 0 {
+				taken[strings.Join(bd.Keys, " ")] = true
+			}
+		}
+		for _, rb := range input.ReadlineBindings(mode, "") {
+			k := strings.Join(rb.Keys, " ")
+			if taken[k] {
+				continue
+			}
+			taken[k] = true
+			out = append(out, rb)
+		}
+	}
 	return append(out, standard("help")...)
 }
 
@@ -644,17 +663,34 @@ func newEngine(env *Env) *core.Engine {
 		return s, nil
 	})
 	h("input.insert", func(s core.State, a *App, c core.Command) (core.State, []core.Effect) {
-		a.Query += strings.ReplaceAll(c.Arg("text"), "\n", " ")
-		a.reproject()
-		return s, nil
-	})
-	h("input.backspace", func(s core.State, a *App, c core.Command) (core.State, []core.Effect) {
-		if r := []rune(a.Query); len(r) > 0 {
-			a.Query = string(r[:len(r)-1])
+		a.QueryLine.Sync(a.Query)
+		if a.QueryLine.Insert(c.Arg("text")) {
+			a.Query = a.QueryLine.Value()
 			a.reproject()
 		}
 		return s, nil
 	})
+	h("input.backspace", func(s core.State, a *App, c core.Command) (core.State, []core.Effect) {
+		a.QueryLine.Sync(a.Query)
+		if changed, _ := a.QueryLine.HandleCommand(core.Command{ID: input.CmdBackspace}); changed {
+			a.Query = a.QueryLine.Value()
+			a.reproject()
+		}
+		return s, nil
+	})
+	for _, id := range input.ReadlineCommandIDs() {
+		if id == input.CmdBackspace {
+			continue
+		}
+		h(id, func(s core.State, a *App, c core.Command) (core.State, []core.Effect) {
+			a.QueryLine.Sync(a.Query)
+			if changed, _ := a.QueryLine.HandleCommand(c); changed {
+				a.Query = a.QueryLine.Value()
+				a.reproject()
+			}
+			return s, nil
+		})
+	}
 	h("input.accept", func(s core.State, a *App, c core.Command) (core.State, []core.Effect) {
 		a.Typing = false
 		if a.Query == "" {
@@ -774,11 +810,11 @@ func newEngine(env *Env) *core.Engine {
 	})
 
 	h("palette.open", env.paletteOpen)
-	for _, id := range []string{"palette.insert", "palette.backspace", "palette.close", picker.CmdConfirm, picker.CmdModeCycle} {
+	for _, id := range append([]string{"palette.insert", "palette.backspace", "palette.close", picker.CmdConfirm, picker.CmdModeCycle}, input.ReadlineCommandIDs()...) {
 		scoped("palette", id, env.paletteCmd)
 	}
 	h("file.open", env.filesOpen)
-	for _, id := range []string{"files.insert", "files.backspace", "files.close", pathpicker.CmdOpen, pathpicker.CmdParent, pathpicker.CmdHiddenToggle, pathpicker.CmdPreviewToggle, pathpicker.CmdModeCycle, picker.CmdConfirm} {
+	for _, id := range append([]string{"files.insert", "files.backspace", "files.close", pathpicker.CmdOpen, pathpicker.CmdParent, pathpicker.CmdHiddenToggle, pathpicker.CmdPreviewToggle, pathpicker.CmdModeCycle, picker.CmdConfirm}, input.ReadlineCommandIDs()...) {
 		scoped("files", id, env.filesCmd)
 	}
 	h("help.open", func(s core.State, a *App, c core.Command) (core.State, []core.Effect) {
@@ -812,7 +848,7 @@ func newEngine(env *Env) *core.Engine {
 		f, _ := newRowForm(a.Doc, id)
 		return openModal(s, modalForm, "form", f), nil
 	})
-	for _, id := range []string{form.CmdInsert, form.CmdBackspace, "form.clear", form.CmdSubmit, form.CmdCancel} {
+	for _, id := range append([]string{form.CmdInsert, form.CmdBackspace, "form.clear", form.CmdSubmit, form.CmdCancel}, input.ReadlineCommandIDs()...) {
 		scoped("form", id, env.formCmd)
 	}
 	h(form.CmdSubmit, env.formCmd) // reachable from anywhere; still guarded

@@ -209,8 +209,10 @@ func (a *App) inputNode() ui.ViewNode {
 		label = "f " + a.headerName(a.Field)
 	}
 	label += " [" + string(a.Match) + "]"
+	line := a.QueryLine
+	line.Sync(a.Query)
 	return ui.ViewNode{ID: nodeFilter, Kind: ui.KindInput, Focusable: true, Title: label, Props: map[string]any{
-		"value": a.Query, "cursor": utf8.RuneCountInString(a.Query),
+		"value": a.Query, "cursor": line.Cursor,
 		"placeholder": "type to filter · enter keeps · esc clears · tab/ctrl+m match mode · ↑↓ move",
 	}}
 }
